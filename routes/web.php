@@ -10,7 +10,7 @@ Route::prefix('/')
         Route::get('/post/{id}/{slug}', 'show')->name('show');
         Route::get('/category/{id}/{slug}', 'category')->name('category');
     });
-
+//deneme
 Route::prefix('/admin')
     ->controller(AdminController::class)
     ->group(function () {
