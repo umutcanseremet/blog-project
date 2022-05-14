@@ -164,12 +164,18 @@ class AdminController extends Controller
 
     public function edit(topic $data)
     {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
         $cat = Categories::all();
             return view('admin.edit', compact(['data','cat']));
     }
 
     public function update(Request $request, $id)
     {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
 
         $post = topic::findOrFail($id);
         $post->topic = $request->topic;
