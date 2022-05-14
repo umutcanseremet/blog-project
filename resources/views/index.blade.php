@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title','Homepage')
+@section('title','Ana Sayfa')
 
 @section('content')
     @foreach($topics as $list)

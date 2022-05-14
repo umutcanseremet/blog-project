@@ -8,7 +8,6 @@
         <img width="300" height="100" src="{{$list['image']}}">
     </a>
     <div class="bg-white flex flex-col justify-start p-6">
-        <a  class="text-blue-700 text-sm font-bold uppercase pb-4">Technology</a>
         <a  class="text-3xl font-bold hover:text-gray-700 pb-4">{{$list['title']}}</a>
         <p  class="text-sm pb-8">
             By <a  class="font-semibold hover:text-gray-800">{{$list['writer']}}</a>, Published

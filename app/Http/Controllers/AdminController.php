@@ -18,7 +18,7 @@ class AdminController extends Controller
     {
         $topics = topic::paginate(3);
         $cat = Categories::all();
-        $set = Settings::all();
+        $set = Settings::first();
         foreach ($topics as $list) {
             $data[] = array(
                 'id' => $list->id,
@@ -28,32 +28,34 @@ class AdminController extends Controller
                 'content' => Str::words($list->text, 30, '...'),
                 'date' => $list->created_at->toFormattedDateString(),
                 'writer' => $list->writer,
-                'image' => asset('/storage/' . Str::afterLast($list->image, 'public/')),
+                'image' => asset($list->image),
             );
         }
 
-        return view('index', ['topics' => $data, 'pagination' => $topics->links(), 'cat' => $cat, 'set' => $set[0]]);
+        return view('index', ['topics' => $data, 'pagination' => $topics->links(), 'cat' => $cat, 'set' => $set]);
     }
 
-    public function show($id)
+    public function show($id,$umut)
     {
+        //dd($umut);
         $cat = Categories::all();
         $set = Settings::all();
 
         $list = topic::findOrFail($id);
-
-        $data[] = array(
+        $set = $set[0];
+        $topic[] = array(
             'title' => $list->topic,
             'content' => $list->text,
             'date' => $list->created_at->toFormattedDateString(),
             'writer' => $list->writer,
-            'image' => asset('/storage/' . Str::afterLast($list->image, 'public/')),
+            'image' => asset($list->image),
         );
 
         $pre = topic::where('id', '<', $id)->orderBy('id', 'desc')->first();
         $aft = topic::where('id', '>', $id)->orderBy('id', 'asc')->first();
 
-        return view('show', ['topic' => $data, 'pre' => $pre, 'aft' => $aft, 'cat' => $cat,'set'=>$set[0]]);
+        return view('show',compact(['topic','pre','aft','cat','set']));
+        //return view('show', ['topic' => $data, 'pre' => $pre, 'aft' => $aft, 'cat' => $cat,'set'=>$set]);
     }
     public function category($id, $slug)
     {
@@ -76,14 +78,16 @@ class AdminController extends Controller
         }
         if (@$data) {
             return view('category', ['topics' => $data, 'pagination' => $topics->links(), 'cat' => $cat, 'set' => $set[0]]);
-        } else {
-            echo "Bu sayfa da şuan için içerik yok";
         }
+
+        abort(404);
     }
 
     public function admin()
     {
-        if (Auth::check()) {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
             $topics = topic::all();
             foreach ($topics as $list) {
                 $data[] = array(
@@ -95,10 +99,8 @@ class AdminController extends Controller
                     'image' => asset('/storage/' . Str::afterLast($list->image, 'public/')),
                 );
             }
+
             return view('admin.index', ['topics' => $data]);
-        } else {
-            return redirect()->route('login');
-        }
     }
 
     public function login()
@@ -109,11 +111,13 @@ class AdminController extends Controller
     public function auth(Request $request)
     {
         $credentials = $request->only('email', 'password');
+
         if (Auth::attempt($credentials)) {
             return redirect()->route('dashboard');
-        } else {
-            return back()->withErrors('Girdiğiniz Bilgiler Hatalı');
         }
+
+        return back()->withErrors('Girdiğiniz Bilgiler Hatalı');
+
     }
 
 
@@ -122,9 +126,8 @@ class AdminController extends Controller
         if (Auth::check()) {
             $cat = Categories::all();
             return view('admin/add_new_topic',compact('cat'));
-        } else {
-            return redirect()->route('login')->withErrors('Öncelikle Giriş Yapmanız Lazım');
         }
+            return redirect()->route('login')->withErrors('Öncelikle Giriş Yapmanız Lazım');
     }
 
     public function store(Request $req)
@@ -136,47 +139,33 @@ class AdminController extends Controller
         $topics->writer = $req->writer;
         $topics->category_id = $req->cat;
         $topics->slug = Str::slug($req->topic, '-');
-        $path = $req->file('image')->store('public/images');
-        $topics->image = $path;
+
+        $imageName = time().'.'.$req->image->extension();
+        $topics->image = $req->image->move('images', $imageName);
 
         if ($topics->save()) {
+
             return back()->with('success', 'Yazı Başarıyla Eklendi 🙂');
-        } else {
+
+        }
+
             return back()->withErrors('fail', 'Kayıt Olmadı');
-        }
+
     }
 
-    public function fun_page()
-    {
-        $topics = topic::where('topic', '=', 'Eğlence')->get();;
-        return view('topics.fun', ['topics' => $topics]);
-    }
 
-    public function information_page()
-    {
-        $topics = topic::where('topic', '=', 'Bilgi')->get();;
-        return view('topics.fun', ['topics' => $topics]);
-    }
 
-    public function articles_page()
+    public function destroy(topic $id)
     {
-        if (Auth::check()) {
-            $topics = topic::get();
-            return view('articles', ['topics' => $topics]);
-        } else {
-            return redirect()->route('login')->withErrors('Öncelikle Giriş Yapmanız Lazım');
-        }
-    }
-
-    public function destroy($id)
-    {
-        topic::find($id)->delete();
+        $id->delete();
+//        topic::find($id)->delete();
         return back()->with('success', 'Yazı Başarıyla Silindi 🙂');
     }
 
-    public function edit($id)
+    public function edit(topic $data)
     {
-        return view('admin.edit', ['data' => topic::findOrFail($id), 'cat' => Categories::all()]);
+        $cat = Categories::all();
+            return view('admin.edit', compact(['data','cat']));
     }
 
     public function update(Request $request, $id)
@@ -187,10 +176,12 @@ class AdminController extends Controller
         $post->text = $request->text;
         $post->writer = $request->writer;
         $post->category_id = $request->cat;
+
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('public/images');
-            $post->image = $path;
+            $imageName = time().'.'.$request->image->extension();
+            $post->image = $request->image->move('images', $imageName);
         }
+
         $post->save();
 
         return back()->with('success', 'Güncellendi 🙂');

@@ -11,7 +11,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css?family=Karla:400,700&display=swap');
-
         .font-family-karla {
             font-family: karla;
         }
@@ -52,7 +51,7 @@
 
         </a>
         <p class="text-lg text-gray-600">
-            Buraya ne yazcağımı bulamadım :D
+            Umut Blog
         </p>
     </div>
 </header>
@@ -89,10 +88,10 @@
         <div class="w-full bg-white shadow flex flex-col my-4 p-6">
             <p class="text-xl font-semibold pb-5">Hakkımda</p>
             <p class="pb-2">{{$set['about']}}</p>
-{{--            <a href="#"--}}
-{{--               class="w-full bg-blue-800 text-white font-bold text-sm uppercase rounded hover:bg-blue-700 flex items-center justify-center px-2 py-3 mt-4">--}}
-{{--                Get to know us--}}
-{{--            </a>--}}
+            {{--            <a href="#"--}}
+            {{--               class="w-full bg-blue-800 text-white font-bold text-sm uppercase rounded hover:bg-blue-700 flex items-center justify-center px-2 py-3 mt-4">--}}
+            {{--                Get to know us--}}
+            {{--            </a>--}}
         </div>
     </aside>
 

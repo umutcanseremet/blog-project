@@ -43,7 +43,7 @@
                         <input class="form-control" name="image" type="file" id="formFile" accept="image/*">
                         <br>
                         <img class="border border-1 border-black p-2 m-1" width="100" height="100"
-                             src="{{ asset('/storage/' . Str::afterLast($data->image, 'public/')) }}">
+                             src="{{ asset($data->image) }}">
                     </div>
                     <button class="btn btn-block btn-primary" type="submit">Konuyu Güncelle</button>
                 </form>
