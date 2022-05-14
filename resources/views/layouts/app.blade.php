@@ -51,7 +51,7 @@
 
         </a>
         <p class="text-lg text-gray-600">
-            Umut Blog
+            Umut Can Blog
         </p>
     </div>
 </header>
